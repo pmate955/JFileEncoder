@@ -18,7 +18,7 @@ import javax.swing.filechooser.FileSystemView;
 
 import Controller.Encoder;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements Runnable{
 	
 	private Encoder enc;
 	private JLabel fileLabel;
@@ -42,6 +42,9 @@ public class MainFrame extends JFrame {
 		out.setLayout(new GridLayout(2,2));
 		JButton start = new JButton("Start");
 		JButton save = new JButton("Save");	
+		save.addActionListener((l)->{
+			this.save();
+		});
 		start.addActionListener((l)->{
 			this.startEncoding();
 		});
@@ -52,6 +55,7 @@ public class MainFrame extends JFrame {
 		out.add(progress);
 		return out;
 	}
+
 
 	private JPanel addInputPanel() {
 		JPanel out = new JPanel();
@@ -79,7 +83,8 @@ public class MainFrame extends JFrame {
 
 	private void startEncoding() {
 		// TODO Auto-generated method stub
-		
+		Thread mainThread = new Thread(this);
+		mainThread.start();
 	}
 
 
@@ -88,4 +93,34 @@ public class MainFrame extends JFrame {
 		MainFrame mf = new MainFrame();
 	}
 
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		enc.setKey("asd");
+		Thread t = new Thread(enc);
+		t.start();
+		progress.setMaximum(enc.getSize());
+		while(t.isAlive()) {
+			progress.setValue(enc.actual);
+			this.repaint();
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		progress.setValue(enc.getSize());
+		System.out.println("Done");
+	}
+
+	private void save() {
+		// TODO Auto-generated method stub
+		if(enc.save()) {
+			System.out.println("Saved");
+		} else {
+			System.out.println("Error");
+		}; 
+	}
+	
 }
