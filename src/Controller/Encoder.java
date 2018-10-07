@@ -6,7 +6,6 @@ import Model.Writer;
 
 public class Encoder implements Runnable{
 	
-	private String readed;
 	private String path;
 	private Reader read;
 	private Writer write;
@@ -46,11 +45,20 @@ public class Encoder implements Runnable{
 		}
 	}
 	
-	public boolean save() {
-		return write.writeData(encrypted, path + ".bin");
+	public boolean save(boolean isEncoded) {
+		if(isEncoded) {
+			return write.writeData(encrypted, path.substring(0, path.indexOf(".bin")));
+		} else {
+			return write.writeData(encrypted, path + ".bin");
+		}
+		
 	}
 	
 	public int getSize() {
 		return read.input.length;
+	}
+	
+	public boolean hasInput() {
+		return this.path != null;
 	}
 }

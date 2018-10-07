@@ -7,12 +7,14 @@ import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
@@ -23,6 +25,8 @@ public class MainFrame extends JFrame implements Runnable{
 	private Encoder enc;
 	private JLabel fileLabel;
 	private JProgressBar progress;
+	private JTextField keyField;
+	private JCheckBox isEncode;
 	
 	public MainFrame() {
 		this.setTitle("File Encoder");
@@ -59,7 +63,7 @@ public class MainFrame extends JFrame implements Runnable{
 
 	private JPanel addInputPanel() {
 		JPanel out = new JPanel();
-		out.setLayout(new FlowLayout(FlowLayout.CENTER));
+		out.setLayout(new FlowLayout(FlowLayout.LEADING));
 		out.setBorder(BorderFactory.createTitledBorder("Input options"));
 		JButton readBtn = new JButton("Open file");
 		fileLabel = new JLabel("Please open file!");
@@ -75,16 +79,26 @@ public class MainFrame extends JFrame implements Runnable{
 				};
 			}
 		});
+		keyField = new JTextField(10);
+		isEncode = new JCheckBox("Encode");
 		out.add(readBtn);
 		out.add(fileLabel);
+		out.add(new JLabel("Key"));
+		out.add(keyField);
+		out.add(isEncode);
 		return out;
 	}
 	
 
 	private void startEncoding() {
-		// TODO Auto-generated method stub
-		Thread mainThread = new Thread(this);
-		mainThread.start();
+		if(keyField.getText().length() == 0){
+			JOptionPane.showMessageDialog(this, "No keycode", "Error", JOptionPane.ERROR_MESSAGE);
+		} else if(!enc.hasInput()) {
+			JOptionPane.showMessageDialog(this, "No input file", "Error", JOptionPane.ERROR_MESSAGE);			
+		} else {
+			Thread mainThread = new Thread(this);
+			mainThread.start();
+		}
 	}
 
 
@@ -96,7 +110,7 @@ public class MainFrame extends JFrame implements Runnable{
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		enc.setKey("asd");
+		enc.setKey(keyField.getText());
 		Thread t = new Thread(enc);
 		t.start();
 		progress.setMaximum(enc.getSize());
@@ -111,12 +125,11 @@ public class MainFrame extends JFrame implements Runnable{
 			}
 		}
 		progress.setValue(enc.getSize());
-		System.out.println("Done");
 	}
 
 	private void save() {
 		// TODO Auto-generated method stub
-		if(enc.save()) {
+		if(enc.save(!isEncode.isSelected())) {
 			System.out.println("Saved");
 		} else {
 			System.out.println("Error");
